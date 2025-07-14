@@ -1,0 +1,102 @@
+services:
+  frontend:
+    build:
+      context: ../frontend
+    container_name: asad-frontend
+    environment:
+      HOST_DOMAIN: "demo.urpias.ru"
+      NGINX_PORT: 80
+      URL_PREFIX: "/"
+      BACKEND_API_URL: "http://backend:5000"
+      KEYCLOAK_URL: "http://keycloak:8080"
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "8081:80"
+    networks:
+      - asad-network
+    restart: always
+
+  backend:
+    build:
+      context: .
+    container_name: backend
+    hostname: backend
+    environment:
+      GUNICORN_TIMEOUT: 120
+      MAX_WORKERS: 4
+      CONFIG_NAME: ProductionConfig
+      SQLALCHEMY_DATABASE_URI: postgresql://flask:secretpassword@db:5432/flaskdb
+    depends_on:
+      - keycloak
+      - db
+    networks:
+      - asad-network
+    volumes:
+      - ./:/app
+    restart: always
+
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_DB: "flaskdb"
+      POSTGRES_USER: "flask"
+      POSTGRES_PASSWORD: "secretpassword"
+    ports:
+      - "5434:5432"
+    networks:
+      - asad-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.4
+    container_name: keycloak
+    hostname: keycloak
+    command: start --hostname-strict-https=false --hostname-strict=false --http-enabled=true
+    environment:
+      KC_DB: "postgres"
+      KC_DB_URL: "jdbc:postgresql://keycloak_db:5432/keycloak"
+      KC_DB_USERNAME: "keycloak"
+      KC_DB_PASSWORD: "secretpassword"
+
+      KC_HOSTNAME_URL: "http://demo.urpias.ru/keycloak/"
+      KC_HTTP_RELATIVE_PATH: "/keycloak/"
+
+      KC_PROXY: passthrough
+      KC_PROXY_HEADERS: "forwarded|xforwarded"
+
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      - keycloak_db
+    ports:
+      - "8082:8080"  # Добавьте проброс порта для Keycloak
+    networks:
+      - asad-network
+
+  keycloak_db:
+    image: postgres:15
+    container_name: keycloak_db
+    hostname: keycloak_db
+    environment:
+      POSTGRES_DB: "keycloak"
+      POSTGRES_USER: "keycloak"
+      POSTGRES_PASSWORD: "secretpassword"
+    ports:
+      - "5433:5432"
+    networks:
+      - asad-network
+    volumes:
+      - ./deploy/postgresql_keycloak:/docker-entrypoint-initdb.d
+
+networks:
+  asad-network:
+    driver: bridge
+
+volumes:
+  postgres_keycloak_data:
+  postgres_data:

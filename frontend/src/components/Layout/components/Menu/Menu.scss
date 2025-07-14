@@ -1,0 +1,30 @@
+.menu {
+  justify-content: flex-end;
+  padding: 5px;
+  line-height: 60px;
+
+  font: {
+    size: 18px;
+    weight: 500;
+  }
+}
+
+.nav-footer {
+  display: flex;
+  flex-flow: row wrap;
+  width: 380px;
+
+  a {
+    text-decoration: none;
+    color: #544f4f;
+    font-size: 18px;
+    flex-basis: 50%;
+    transition: 0.3s color;
+    white-space: nowrap;
+  }
+
+  a:hover {
+    transition: color;
+    color: #1890ff;
+  }
+}

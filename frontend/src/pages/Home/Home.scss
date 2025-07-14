@@ -1,0 +1,42 @@
+.page {
+  display: flex;
+  flex-flow: row nowrap;
+  padding: 2% 3%;
+  min-height: 100%;
+
+  .wrap {
+    flex-basis: 50%;
+    padding-left: 10%;
+    align-self: center;
+  }
+
+  .bg-image {
+    flex-basis: 50%;
+    background-image: linear-gradient(
+        to right,
+        rgb(255 255 255 / 100%),
+        20%,
+        rgb(255 255 255 / 0%)
+      ),
+      linear-gradient(
+        to left,
+        rgb(255 255 255 / 100%),
+        20%,
+        rgb(255 255 255 / 0%)
+      ),
+      url("@assets/images/hero.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.text {
+  font-size: 18px;
+  line-height: 22px;
+}

@@ -1,0 +1,14 @@
+.logo-wrapper {
+  margin: auto 0;
+
+  .logo {
+    width: 130px;
+    height: 50px;
+    background: {
+      image: url("@assets/images/logo.png");
+      position: center;
+      repeat: no-repeat;
+      size: contain;
+    }
+  }
+}

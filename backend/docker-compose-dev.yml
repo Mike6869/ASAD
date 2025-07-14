@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: "flaskdb"
+      POSTGRES_USER: "flask"
+      POSTGRES_PASSWORD: "secretpassword"
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.4
+    command: start-dev
+    environment:
+      KC_DB: "postgres"
+      KC_DB_URL: "jdbc:postgresql://keycloak_db:5432/keycloak"
+      KC_DB_USERNAME: "keycloak"
+      KC_DB_PASSWORD: "secretpassword"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      - keycloak_db
+    ports:
+      - "8080:8080"
+
+  keycloak_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: "keycloak"
+      POSTGRES_USER: "keycloak"
+      POSTGRES_PASSWORD: "secretpassword"
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./deploy/postgresql_keycloak:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_keycloak_data:
+  postgres_data:

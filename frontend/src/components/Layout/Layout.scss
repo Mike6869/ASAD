@@ -1,0 +1,21 @@
+.layout {
+  display: grid;
+  min-height: 100vh;
+  grid-template:
+    "header" min-content
+    "main" auto
+    "footer" min-content
+    / 100%;
+}
+
+.header {
+  grid-area: header;
+}
+
+.main {
+  grid-area: main;
+}
+
+.footer {
+  grid-area: footer;
+}

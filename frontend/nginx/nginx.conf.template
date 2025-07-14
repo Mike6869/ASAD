@@ -1,0 +1,54 @@
+server {
+    listen ${NGINX_PORT};
+    listen [::]:${NGINX_PORT};
+    server_name ${HOST_DOMAIN};
+    add_header Url_prefix "${URL_PREFIX}";
+    client_max_body_size 100M;
+    large_client_header_buffers 4 64k;
+
+    location ~ ^${URL_PREFIX}keycloak/ {
+        proxy_set_header Host $${p}host;
+        proxy_pass ${KEYCLOAK_URL};
+
+        # Добавьте эти строки для увеличения размера заголовков
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+    }
+
+    location ~ ^${URL_PREFIX}(auth|api|docs|admin)/ {
+        proxy_pass ${BACKEND_API_URL};
+
+        # Добавьте эти строки для увеличения размера заголовков
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        fastcgi_read_timeout 300s;
+    }
+
+    location /openapi.json {
+        proxy_pass ${BACKEND_API_URL};
+    }
+
+    location ${URL_PREFIX}src/ {
+        alias /usr/share/nginx/html/;
+        try_files $${p}uri $${p}uri/;
+    }
+
+    location ${URL_PREFIX} {
+        expires 1d;
+        alias /usr/share/nginx/html/;
+        index index.html index.htm;
+        try_files $${p}uri $${p}uri/ /index.html =404;
+
+        # Добавьте эти строки для увеличения размера заголовков
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+
+    }
+}
